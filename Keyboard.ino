@@ -19,6 +19,24 @@ matrix_row_t matrix_prev[MATRIX_ROWS];
 
 #define readPin(pin) (digitalRead(pin) == HIGH)
 
+void onKey(int index){
+  switch(index){
+    case 0:
+      DigiKeyboard.addKeyPress(4);
+      break;
+    case 1:
+      break;
+    case 2:
+      break;
+    case 3:
+      break;
+    case 4:
+      break;
+    case 5:
+      break;
+  }
+}
+
 void unselect_rows(void) {
     for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
         digitalWrite(row_pins[x],HIGH);
@@ -93,14 +111,16 @@ inline matrix_row_t matrix_get_row(uint8_t row) {
 
 }
 
-void keyboard_task(void) {
+bool keyboard_task(void) {
     matrix_row_t        matrix_row    = 0;
     matrix_row_t        matrix_change = 0;
+    bool changed = false;
     matrix_scan();
     for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
         matrix_row    = matrix_get_row(r);
         matrix_change = matrix_row ^ matrix_prev[r];
         if (matrix_change) {
+            changed = true;
             matrix_row_t col_mask = 1;
             for (uint8_t c = 0; c < MATRIX_COLS; c++, col_mask <<= 1) {
                 if (matrix_change & col_mask) {
@@ -115,6 +135,7 @@ void keyboard_task(void) {
             }
         }
     }
+    return changed;
 }
 
 void setup() {
@@ -128,14 +149,26 @@ void setup() {
 
 void loop() {
   int8_t newv = ecc.encoderUpdate();
-  DigiKeyboard.record();
+  
   if(newv > 0){
+     DigiKeyboard.record();
      DigiKeyboard.addKeyPress(4);
+     DigiKeyboard.report();
+     DigiKeyboard.record();
+     DigiKeyboard.report();
   }else if(newv < 0){
+     DigiKeyboard.record();
      DigiKeyboard.addKeyPress(5);
+     DigiKeyboard.report();
+     DigiKeyboard.record();
+     DigiKeyboard.report();
   }
-  keyboard_task();
-  DigiKeyboard.report();
+  DigiKeyboard.record();
+  bool change = keyboard_task();
+  if(change){
+    DigiKeyboard.report();  
+  }
+  
   // It's better to use DigiKeyboard.delay() over the regular Arduino delay()
   // if doing keyboard stuff because it keeps talking to the computer to make
   // sure the computer knows the keyboard is alive and connected
