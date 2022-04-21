@@ -22,7 +22,8 @@ matrix_row_t matrix_prev[MATRIX_ROWS];
 void onKey(int index){
   switch(index){
     case 0:
-      DigiKeyboard.addKeyPress(4);
+      DigiKeyboard.addKeyPress(KC_LCTRL);
+      DigiKeyboard.addKeyPress(KC_UP);
       break;
     case 1:
       break;
@@ -125,7 +126,8 @@ bool keyboard_task(void) {
             for (uint8_t c = 0; c < MATRIX_COLS; c++, col_mask <<= 1) {
                 if (matrix_change & col_mask) {
                    if(matrix_row & col_mask){
-                     DigiKeyboard.addKeyPress(code[r*MATRIX_COLS + c]);
+//                     DigiKeyboard.addKeyPress(code[r*MATRIX_COLS + c]);
+                       onKey(r*MATRIX_COLS + c);
                    }
                    
 
@@ -152,13 +154,15 @@ void loop() {
   
   if(newv > 0){
      DigiKeyboard.record();
-     DigiKeyboard.addKeyPress(4);
+     DigiKeyboard.addKeyPress(KC_LCTRL);
+     DigiKeyboard.addKeyPress(KC_LEFT);
      DigiKeyboard.report();
-     DigiKeyboard.record();
+     DigiKeyboard.record(); 
      DigiKeyboard.report();
   }else if(newv < 0){
      DigiKeyboard.record();
-     DigiKeyboard.addKeyPress(5);
+     DigiKeyboard.addKeyPress(KC_LCTRL);
+     DigiKeyboard.addKeyPress(KC_RIGHT);
      DigiKeyboard.report();
      DigiKeyboard.record();
      DigiKeyboard.report();
